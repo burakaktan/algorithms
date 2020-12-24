@@ -1,0 +1,81 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int seg[8000007];
+int lazy[8000007];
+
+void pushTree(int x)
+{
+    seg[x] += lazy[x];
+
+    lazy[x+x] += lazy[x];
+    lazy[x+x+1] += lazy[x];
+
+    lazy[x] = 0;
+}
+
+void update(int b,int s,int l,int r,int ss)
+{
+    if(b == l && s == r)
+    {
+        lazy[ss]++;
+        pushTree(ss);
+        return ;
+    }
+
+    int mid = (b + s)/2;
+
+    if(mid >= r)update(b,mid,l,r,ss+ss);
+    else if(mid < l)update(mid+1,s,l,r,ss+ss+1);
+    else
+    {
+        update(b,mid,l,mid,ss+ss);
+        update(mid+1,s,mid+1,r,ss+ss+1);
+    }
+
+    pushTree(ss+ss);
+    pushTree(ss+ss+1);
+    seg[ss] = max(seg[ss+ss] , seg[ss+ss+1]);
+}
+
+int query(int b,int s,int l,int r,int ss)
+{
+    pushTree(ss);
+
+    if(b == l && s == r)
+    {
+        return seg[ss];
+    }
+
+    int mid = (b + s)/2;
+
+    if(mid >= r)return query(b,mid,l,r,ss+ss);
+    else if(mid < l)return query(mid+1,s,l,r,ss+ss+1);
+    else
+    {
+        return max(query(b,mid,l,mid,ss+ss) , query(mid+1,s,mid+1,r,ss+ss+1));
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    int q;
+    cin>>q;
+    while(q--)
+    {
+        string s;
+        cin>>s;
+        int l,r;
+        cin>>l>>r;
+        if(s[0] == 'I')
+        {
+            update(1,1000000,l,r,1);
+        }
+        else
+        {
+            cout<< query(1,1000000,l,r,1) << "\n";
+        }
+    }
+}
